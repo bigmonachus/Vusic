@@ -1,8 +1,10 @@
 extern mod gl;
 
+use std::cast;
 use std::io::{read_whole_file_str};
 use std::ptr;
 use std::str;
+use std::sys;
 use std::vec;
 
 use gl::types::*;
@@ -17,16 +19,77 @@ pub struct Program {
 }
 
 pub struct Shader {
-    path: ~str,
-    shader_type: ShaderClass,
-    shader_obj: u32,
     gl_id: GLuint,
+}
+
+pub struct Mesh {
+    vbo: GLuint,  // Vertex buffer object
+    vib: GLuint,  // Element array object
+    num_triangles: u16
 }
 
 pub fn CheckGLError() {
     let err = gl::GetError();
     if err != gl::NO_ERROR {
-        println(fmt!("GL error detected: %?", err));
+        println!("GL error detected: {}", err);
+    }
+}
+
+// program must have vec3 attribute "position".
+pub fn render_meshes(program: &Program, meshes: &~[Mesh]) {
+    for mesh in meshes.iter() {
+        unsafe {
+            gl::BindBuffer(gl::ARRAY_BUFFER, mesh.vbo);
+            let pos_attr = "position".with_c_str(|ptr| gl::GetAttribLocation(program.gl_id, ptr));
+            gl::EnableVertexAttribArray(pos_attr as GLuint);
+            gl::VertexAttribPointer(pos_attr as GLuint, 3, gl::FLOAT, gl::FALSE as GLboolean, 0, ptr::null());
+
+            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, mesh.vib);
+            gl::DrawElements(
+                    gl::TRIANGLES, 3 * (mesh.num_triangles as i32), gl::UNSIGNED_SHORT, ptr::null());
+        }
+    }
+    CheckGLError();
+}
+
+impl Mesh {
+    pub fn new(num_triangles: u16, vertex_data: &~[GLfloat], indices: &~[GLushort]) -> Mesh {
+        assert!((num_triangles as uint) == indices.len());
+        unsafe {
+            let mut vbo: GLuint = 0;
+            let mut vib: GLuint = 0;
+
+            // Create a Vertex Buffer Object and copy the vertex data to it
+            gl::GenBuffers(1, &mut vbo);
+            gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+            gl::BufferData(
+                    gl::ARRAY_BUFFER,
+                    (vertex_data.len() * sys::size_of::<GLfloat>()) as GLsizeiptr,
+                    cast::transmute(&vertex_data[0]),
+                    gl::STATIC_DRAW);
+            CheckGLError();
+
+            let indices: [GLushort, ..6] = [0, 1, 2, 3, 4, 5];
+
+            gl::GenBuffers(1, &mut vib);
+            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, vib);
+            gl::BufferData(
+                    gl::ELEMENT_ARRAY_BUFFER,
+                    (indices.len() * sys::size_of::<GLushort>()) as GLsizeiptr,
+                    cast::transmute(&indices[0]),
+                    gl::STATIC_DRAW);
+            CheckGLError();
+            Mesh {vbo: vbo, vib: vib, num_triangles: num_triangles}
+        }
+    }
+}
+impl Drop for Mesh {
+    fn drop(&mut self) {
+        unsafe {
+            println!("Deleting mesh: ({}, {})", self.vbo, self.vib);
+            gl::DeleteBuffers(1, &self.vbo);
+            gl::DeleteBuffers(1, &self.vib);
+        }
     }
 }
 
@@ -57,26 +120,24 @@ impl Shader {
                         let infolog = str::raw::from_utf8(buf);
                         if infolog.char_len() != 0 {
                             println("==== Shader compilation failed:");
-                            println(fmt!("Shader path: %s", path));
+                            println!("Shader path: {}", path);
                             fail!(infolog);
                         }
                     }
                 }
-                return Shader { path: path.to_owned(), shader_type: st, shader_obj: object, gl_id: object };
+                Shader { gl_id: object }
 
             },
             Err(_) => {
                 fail!(fmt!("Could not read path: %s", path));
-                //dummy_shader;
             }
         }
-        // Create a new shader.
     }
 }
 
 impl Drop for Shader {
     fn drop(&mut self) {
-        println(fmt!("Deleting shader %?", self.gl_id));
+        println!("Deleting shader {}", self.gl_id);
         gl::DeleteShader(self.gl_id);
     }
 }
@@ -108,7 +169,7 @@ impl Program {
         if gl::IsProgram(object) == 0 {
             fail!("Failed to create program.");
         }
-        return Program { gl_id: object };
+        Program { gl_id: object }
     }
 
     pub fn enable(&self) {
@@ -118,7 +179,7 @@ impl Program {
 
 impl Drop for Program {
     fn drop(&mut self) {
-        println(fmt!("Deleting program: %?", self.gl_id));
+        println!("Deleting program: {}", self.gl_id);
         gl::DeleteProgram(self.gl_id);
     }
 }
