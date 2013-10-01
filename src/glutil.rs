@@ -25,7 +25,7 @@ pub struct Shader {
 pub struct Mesh {
     vbo: GLuint,  // Vertex buffer object
     vib: GLuint,  // Element array object
-    num_triangles: u16
+    num_vertices: u16
 }
 
 pub fn CheckGLError() {
@@ -46,15 +46,15 @@ pub fn render_meshes(program: &Program, meshes: &~[Mesh]) {
 
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, mesh.vib);
             gl::DrawElements(
-                    gl::TRIANGLES, 3 * (mesh.num_triangles as i32), gl::UNSIGNED_SHORT, ptr::null());
+                    gl::TRIANGLES, 3 * (mesh.num_vertices as i32), gl::UNSIGNED_SHORT, ptr::null());
         }
     }
     CheckGLError();
 }
 
 impl Mesh {
-    pub fn new(num_triangles: u16, vertex_data: &~[GLfloat], indices: &~[GLushort]) -> Mesh {
-        assert!((num_triangles as uint) == indices.len());
+    pub fn new(num_vertices: u16, vertex_data: &~[GLfloat], indices: &~[GLushort]) -> Mesh {
+        assert!((num_vertices as uint) == indices.len());
         unsafe {
             let mut vbo: GLuint = 0;
             let mut vib: GLuint = 0;
@@ -79,7 +79,7 @@ impl Mesh {
                     cast::transmute(&indices[0]),
                     gl::STATIC_DRAW);
             CheckGLError();
-            Mesh {vbo: vbo, vib: vib, num_triangles: num_triangles}
+            Mesh {vbo: vbo, vib: vib, num_vertices: num_vertices}
         }
     }
 }
