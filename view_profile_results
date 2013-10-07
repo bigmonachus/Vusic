@@ -1,0 +1,1 @@
+perf script | ./gprof2dot.py -f perf | dot -Tpng -o output.png && eog output.png

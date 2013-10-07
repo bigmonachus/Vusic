@@ -1,7 +1,6 @@
 extern mod glfw;
 extern mod gl;
 
-
 use gl::types::*;
 use glutil::*;
 
@@ -12,9 +11,8 @@ fn main () -> () {
         print(fmt!("GLFW error: %s", desc));
     }
 
-
     do glfw::start {
-        let window = glfw::Window::create(640, 480, "Holy shit this works", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(1280, 800, "Holy shit this works", glfw::Windowed).unwrap();
         window.make_context_current();
 
         // Load gl function pointers.
@@ -32,8 +30,6 @@ fn main () -> () {
         let program = Program::new(shaders);
         program.enable();
 
-
-        //let (vbo, vib) = create_triangles();
         let vertex_data: ~[GLfloat] = ~[
             0.3, 0.1, 0.0,
             0.4, -0.1, 0.0,

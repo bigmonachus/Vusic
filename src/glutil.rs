@@ -41,10 +41,12 @@ pub fn render_meshes(program: &Program, meshes: &~[Mesh]) {
         unsafe {
             gl::BindBuffer(gl::ARRAY_BUFFER, mesh.vbo);
             let pos_attr = "position".with_c_str(|ptr| gl::GetAttribLocation(program.gl_id, ptr));
-            gl::EnableVertexAttribArray(pos_attr as GLuint);
-            gl::VertexAttribPointer(pos_attr as GLuint, 3, gl::FLOAT, gl::FALSE as GLboolean, 0, ptr::null());
-
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, mesh.vib);
+            gl::EnableVertexAttribArray(
+                pos_attr as GLuint);
+            gl::VertexAttribPointer(
+                pos_attr as GLuint, 3, gl::FLOAT, gl::FALSE as GLboolean, 0, ptr::null());
+            gl::BindBuffer(
+                gl::ELEMENT_ARRAY_BUFFER, mesh.vib);
             gl::DrawElements(
                     gl::TRIANGLES, 3 * (mesh.num_vertices as i32), gl::UNSIGNED_SHORT, ptr::null());
         }
@@ -83,6 +85,7 @@ impl Mesh {
         }
     }
 }
+
 impl Drop for Mesh {
     fn drop(&mut self) {
         unsafe {
@@ -116,7 +119,8 @@ impl Shader {
                         let mut len = 0;
                         gl::GetShaderiv(object, gl::INFO_LOG_LENGTH, &mut len);
                         let mut buf = vec::from_elem((len as uint) - 1, 0u8);
-                        gl::GetShaderInfoLog(object, len, ptr::mut_null(), (vec::raw::to_mut_ptr(buf) as *mut GLbyte));
+                        gl::GetShaderInfoLog(
+                            object, len, ptr::mut_null(), (vec::raw::to_mut_ptr(buf) as *mut GLbyte));
                         let infolog = str::raw::from_utf8(buf);
                         if infolog.char_len() != 0 {
                             println("==== Shader compilation failed:");
@@ -157,7 +161,7 @@ impl Program {
             if status != (gl::TRUE as GLint) {
                 let mut len: GLint = 0;
                 gl::GetProgramiv(object, gl::INFO_LOG_LENGTH, &mut len);
-                let mut buf = vec::from_elem(len as uint - 1, 0u8); // subtract 1 to skip the trailing null character
+                let mut buf = vec::from_elem((len as uint) - 1, 0u8);
                 gl::GetProgramInfoLog(object, len, ptr::mut_null(), vec::raw::to_mut_ptr(buf) as *mut GLchar);
                 let infolog = str::raw::from_utf8(buf);
                 if infolog.char_len() != 0 {
