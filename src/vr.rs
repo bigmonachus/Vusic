@@ -1,3 +1,5 @@
+extern mod gl;
+
 pub struct RiftInfo {
     HResolution: u32,
     VResolution: u32,
@@ -45,3 +47,19 @@ pub fn finish() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Non-FFI code:
+////////////////////////////////////////////////////////////////////////////////
+
+pub struct Head {
+    w: i32,
+    h: i32,
+    rift_info: RiftInfo,
+}
+
+pub fn render_frame(head : &Head, render_func: &fn()) {
+    gl::Viewport(0, 0, head.w / 2, head.h);
+    render_func();
+    gl::Viewport(head.w / 2, 0, head.w / 2, head.h);
+    render_func();
+}

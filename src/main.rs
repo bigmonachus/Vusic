@@ -16,9 +16,35 @@ fn main () -> () {
         vr::init();
         let info = vr::get_info();
         println!("Rift resolution: {}x{}", info.HResolution, info.VResolution);
+
+        let monitors = glfw::Monitor::get_connected();
+
+        fn find_rift(monitors : &~[glfw::Monitor]) -> Option<glfw::Monitor> {
+            let mut i = 0;
+            for m in monitors.iter() {
+                let (w, h) = m.get_physical_size();
+                if w == 150 && h == 94 {
+                    return Some(monitors[i]);
+                }
+                i = i + 1
+            }
+            None
+        }
+
+        //let rift = find_rift(&monitors);
+        let rift = None;  // Desktop test
+
         let window = glfw::Window::create(
             (info.HResolution as uint), (info.VResolution as uint),
-            "Holy shit this works", glfw::Windowed).unwrap();
+            "Holy shit this works",
+            match rift {
+                Some(monitor) => {
+                    glfw::FullScreen(monitor)
+                }
+                None() => {
+                    glfw::Windowed
+                }
+            }).unwrap();
         window.make_context_current();
 
         // Load gl function pointers.
@@ -28,7 +54,7 @@ fn main () -> () {
 
         // Initialization ======================================================
 
-        glfw::set_swap_interval(1);  // VSYNC
+        glfw::set_swap_interval(0);  // VSYNC
         let v_shader = Shader::new("src/perspective.v.glsl", Vertex);
         let f_shader = Shader::new("src/material.f.glsl", Fragment);
 
@@ -54,10 +80,14 @@ fn main () -> () {
 
         CheckGLError();
 
+        let w = info.HResolution as i32;
+        let h = info.VResolution as i32;
+        let head = vr::Head {w:w, h:h, rift_info: info};
+
         while !window.should_close() {
             gl::ClearColor(0.0, 0.0, 1.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
-            render_meshes(&program, &meshes);
+            vr::render_frame(&head, || { render_meshes(&program, &meshes); } );
             window.swap_buffers();
             glfw::poll_events();
         }
