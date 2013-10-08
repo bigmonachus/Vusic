@@ -97,7 +97,7 @@ extern "C" {
         HMD_COPY(EyeToScreenDistance);
         HMD_COPY(LensSeparationDistance);
         HMD_COPY(InterpupillaryDistance);
-        memcpy(res.DistortionK, info.DistortionK, 4 * sizeof(float));
+        memcpy(res.DistortionK       , info.DistortionK       , 4 * sizeof(float));
         memcpy(res.ChromaAbCorrection, info.ChromaAbCorrection, 4 * sizeof(float));
         HMD_COPY(DesktopX);
         HMD_COPY(DesktopY);
@@ -132,10 +132,10 @@ int main(int argc, char *argv[]) {
 
     RiftInfo info = vr_get_info();
 
-    printf("Resolution %dx%d\n", info.HResolution, info.VResolution);
-    printf("Size %fx%f\n", info.HScreenSize, info.VScreenSize);
-    printf("Center %f\n", info.VScreenCenter);
-    printf("IPD: %f\n", info.InterpupillaryDistance);
+    printf("Resolution %dx%d\n" , info.HResolution              , info.VResolution);
+    printf("Size %fx%f\n"       , info.HScreenSize              , info.VScreenSize);
+    printf("Center %f\n"        , info.VScreenCenter);
+    printf("IPD: %f\n"          , info.InterpupillaryDistance);
 
     for (int i = 0; i < 10; ++i) {
         float x,y,z,w;
@@ -149,7 +149,6 @@ int main(int argc, char *argv[]) {
     }
 
     vr_finish();
-
 
     return 0;
 }

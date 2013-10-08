@@ -5,8 +5,11 @@ use gl::types::*;
 use glutil::*;
 
 mod glutil;
+mod vr;
+
 
 fn main () -> () {
+    vr::init();
     do glfw::set_error_callback |_, desc| {
         print(fmt!("GLFW error: %s", desc));
     }
@@ -53,7 +56,7 @@ fn main () -> () {
             render_meshes(&program, &meshes);
             window.swap_buffers();
             glfw::poll_events();
-
         }
+        vr::finish();
     }
 }
