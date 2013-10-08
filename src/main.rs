@@ -17,9 +17,17 @@ fn main () -> () {
         let info = vr::get_info();
         println!("Rift resolution: {}x{}", info.HResolution, info.VResolution);
 
-        let monitors = glfw::Monitor::get_connected();
 
-        fn find_rift(monitors : &~[glfw::Monitor]) -> Option<glfw::Monitor> {
+
+
+        glfw::window_hint::decorated(false);
+        let window = glfw::Window::create(
+            (info.HResolution as uint), (info.VResolution as uint),
+            "Holy shit this works",
+            glfw::Windowed).unwrap();
+        window.make_context_current();
+
+        fn find_rift_display(monitors : &~[glfw::Monitor]) -> Option<glfw::Monitor> {
             let mut i = 0;
             for m in monitors.iter() {
                 let (w, h) = m.get_physical_size();
@@ -30,22 +38,15 @@ fn main () -> () {
             }
             None
         }
-
-        //let rift = find_rift(&monitors);
-        let rift = None;  // Desktop test
-
-        let window = glfw::Window::create(
-            (info.HResolution as uint), (info.VResolution as uint),
-            "Holy shit this works",
-            match rift {
-                Some(monitor) => {
-                    glfw::FullScreen(monitor)
-                }
-                None() => {
-                    glfw::Windowed
-                }
-            }).unwrap();
-        window.make_context_current();
+        match (find_rift_display(&glfw::Monitor::get_connected())) {
+            Some(m) => {
+                let (x, y) = m.get_pos();
+                window.set_pos(x, y);
+            }
+            None => {
+                window.set_pos(0, 0);
+            }
+        }
 
         // Load gl function pointers.
         gl::load_with(glfw::get_proc_address);
