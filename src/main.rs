@@ -54,7 +54,6 @@ fn main () -> () {
 
         CheckGLError();
 
-
         while !window.should_close() {
             gl::ClearColor(0.0, 0.0, 1.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);

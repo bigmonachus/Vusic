@@ -16,6 +16,7 @@ struct RiftState {
         device = *manager->EnumerateDevices<HMDDevice>().CreateDevice();
         if (!device) {
             fprintf(stderr, "Error, could not create device.\n");
+            exit(-1);
         }
         HMDInfo info;
         if (device->GetDeviceInfo(&info)) {
@@ -31,10 +32,9 @@ struct RiftState {
         }
 
     }
-    // We can't rely on RAII with a global variable. Explicit Drop method.
+
     ~RiftState() {
         printf("Destroying rift state\n");
-        System::Destroy();
     }
 
     Ptr<DeviceManager> manager;
@@ -123,6 +123,7 @@ extern "C" {
 
     void vr_finish() {
         delete gState;
+        System::Destroy();
     }
 }
 
