@@ -7,15 +7,18 @@ use glutil::*;
 mod glutil;
 mod vr;
 
-
 fn main () -> () {
-    vr::init();
     do glfw::set_error_callback |_, desc| {
         print(fmt!("GLFW error: %s", desc));
     }
 
     do glfw::start {
-        let window = glfw::Window::create(1280, 800, "Holy shit this works", glfw::Windowed).unwrap();
+        vr::init();
+        let info = vr::get_info();
+        println!("Rift resolution: {}x{}", info.HResolution, info.VResolution);
+        let window = glfw::Window::create(
+            (info.HResolution as uint), (info.VResolution as uint),
+            "Holy shit this works", glfw::Windowed).unwrap();
         window.make_context_current();
 
         // Load gl function pointers.
@@ -24,6 +27,7 @@ fn main () -> () {
         window.swap_buffers();
 
         // Initialization ======================================================
+
         glfw::set_swap_interval(1);  // VSYNC
         let v_shader = Shader::new("src/perspective.v.glsl", Vertex);
         let f_shader = Shader::new("src/material.f.glsl", Fragment);
@@ -49,6 +53,7 @@ fn main () -> () {
         program.enable();
 
         CheckGLError();
+
 
         while !window.should_close() {
             gl::ClearColor(0.0, 0.0, 1.0, 1.0);

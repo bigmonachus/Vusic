@@ -2,3 +2,10 @@
 lib/*
 *.png
 src/main
+OculusSDK/*
+*.a
+*.o
+*.out
+*.taghl
+tags
+main~
