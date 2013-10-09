@@ -1,4 +1,5 @@
 extern mod gl;
+extern mod cgmath;
 
 pub struct RiftInfo {
     HResolution: u32,

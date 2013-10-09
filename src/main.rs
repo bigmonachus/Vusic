@@ -1,3 +1,5 @@
+#[feature(globs)];
+
 extern mod glfw;
 extern mod gl;
 
@@ -16,9 +18,6 @@ fn main () -> () {
         vr::init();
         let info = vr::get_info();
         println!("Rift resolution: {}x{}", info.HResolution, info.VResolution);
-
-
-
 
         glfw::window_hint::decorated(false);
         let window = glfw::Window::create(
@@ -81,9 +80,11 @@ fn main () -> () {
 
         CheckGLError();
 
-        let w = info.HResolution as i32;
-        let h = info.VResolution as i32;
-        let head = vr::Head {w:w, h:h, rift_info: info};
+        let head = vr::Head {
+            w:         info.HResolution as i32,
+            h:         info.VResolution as i32,
+            rift_info: info
+        };
 
         while !window.should_close() {
             gl::ClearColor(0.0, 0.0, 1.0, 1.0);

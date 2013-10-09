@@ -1,0 +1,3 @@
+rustc gl-rs-sgl/src/gl/lib.rs -O --out-dir lib/x86_64-unknown-linux-gnu
+rustc glfw-rs/src/glfw/lib.rs -O --out-dir lib/x86_64-unknown-linux-gnu
+rustc cgmath-rs-sgl/src/cgmath/lib.rs -O --out-dir lib/x86_64-unknown-linux-gnu

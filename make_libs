@@ -1,2 +1,0 @@
-rustc gl-rs/src/gl/lib.rs -O --out-dir lib/x86_64-unknown-linux-gnu
-rustc glfw-rs/src/glfw/lib.rs -O --out-dir lib/x86_64-unknown-linux-gnu
